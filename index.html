@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Management System - Linked List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Bank Management System</h1>
+          <p class="subtitle">Singly Linked List Data Structure</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="btn-create-open" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          New Account
+        </button>
+        <button id="btn-reset-demo" class="btn btn-outline" title="Reload demo accounts">
+          Reset Demo
+        </button>
+      </div>
+    </header>
+
+    <!-- Overview Stats -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Total Accounts</span>
+        <span class="stat-val" id="stat-count">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total Deposits</span>
+        <span class="stat-val" id="stat-vault">Rs. 0.00</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Next Account Number</span>
+        <span class="stat-val" id="stat-next">1001</span>
+      </div>
+    </section>
+
+    <!-- Linked List Visualizer Card -->
+    <section class="card visualizer-card">
+      <div class="card-header">
+        <div>
+          <h2>Linked List Visualization</h2>
+          <p class="card-subtitle">Real-time representation of memory nodes connected via pointers (head &rarr; next &rarr; NULL)</p>
+        </div>
+        <div id="traversal-hint" class="traversal-hint hidden">
+          <span class="hint-spinner"></span>
+          <span id="traversal-msg">Traversing nodes...</span>
+        </div>
+      </div>
+
+      <div class="visualizer-container">
+        <div id="ll-chain" class="ll-chain">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Accounts Table Card -->
+    <section class="card table-card">
+      <div class="card-header">
+        <div>
+          <h2>All Bank Accounts</h2>
+          <p class="card-subtitle">Sequential list of current account nodes</p>
+        </div>
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="filter-input" placeholder="Search by name or account #...">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="account-table">
+          <thead>
+            <tr>
+              <th>Acc No.</th>
+              <th>Customer Name</th>
+              <th>Balance</th>
+              <th>Next Pointer</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="account-rows">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+        
+        <div id="empty-state" class="empty-state hidden">
+          <p>No accounts currently in the linked list.</p>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btn-create-open').click()">Create First Account</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Console Output Card (Collapsible) -->
+    <section class="card terminal-card">
+      <div class="card-header-toggle" id="toggle-console">
+        <div class="toggle-title">
+          <span class="terminal-dot"></span>
+          <h3>C++ Standard Output (cout &lt;&lt;)</h3>
+        </div>
+        <span class="toggle-icon" id="console-arrow">&minus;</span>
+      </div>
+      <div class="terminal-body" id="console-content">
+        <pre id="cpp-console-output"></pre>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal: Create Account -->
+  <div id="modal-create" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Create New Account</h3>
+        <button class="btn-close" data-close="modal-create">&times;</button>
+      </div>
+      <form id="form-create">
+        <div class="form-group">
+          <label for="create-name">Customer Name</label>
+          <input type="text" id="create-name" placeholder="e.g. Rahul Sharma" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="create-deposit">Initial Deposit Amount (Rs.)</label>
+          <input type="number" id="create-deposit" placeholder="0.00" min="0" step="0.01" required>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-outline" data-close="modal-create">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Deposit / Withdraw -->
+  <div id="modal-transaction" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="tx-title">Transaction</h3>
+        <button class="btn-close" data-close="modal-transaction">&times;</button>
+      </div>
+      <form id="form-transaction">
+        <div class="account-pill" id="tx-pill">
+          <!-- Filled by JS -->
+        </div>
+        <div class="form-group">
+          <label id="tx-label" for="tx-amount">Amount (Rs.)</label>
+          <input type="number" id="tx-amount" min="0.01" step="0.01" required placeholder="0.00">
+        </div>
+        <input type="hidden" id="tx-acc-no">
+        <input type="hidden" id="tx-type">
+        <div class="modal-foot">
+          <button type="button" class="btn btn-outline" data-close="modal-transaction">Cancel</button>
+          <button type="submit" id="tx-btn" class="btn btn-primary">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Name -->
+  <div id="modal-edit" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Update Customer Name</h3>
+        <button class="btn-close" data-close="modal-edit">&times;</button>
+      </div>
+      <form id="form-edit">
+        <div class="form-group">
+          <label for="edit-name">New Customer Name</label>
+          <input type="text" id="edit-name" required autocomplete="off">
+        </div>
+        <input type="hidden" id="edit-acc-no">
+        <div class="modal-foot">
+          <button type="button" class="btn btn-outline" data-close="modal-edit">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

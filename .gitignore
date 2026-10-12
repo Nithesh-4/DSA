@@ -1,0 +1,11 @@
+# Compiled C++ binaries
+*.exe
+*.out
+*.o
+*.obj
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
